@@ -1,5 +1,27 @@
 # Mongo DataBase :leaves:
 
+## 0. Run
+
+Init Mongo and launches it with Docker
+```sh
+docker pull mongo
+docker run -d -p 27017-27019:27017-27019 --name mongodb-petitrobert mongo
+```
+
+Init and run `database` service
+```sh
+yarn install
+yarn run dev
+```
+
+Browse http://localhost:3000/
+
+
+Kill docker
+```sh
+docker container rm --force <container-name>
+```
+
 ## 1. Why using MongoDB ? :thinking: 
 
 Reasons why we choosed MongoDB: :woman_teacher: 
@@ -16,6 +38,7 @@ Reasons why we choosed MongoDB: :woman_teacher:
 ```js
 {
   _id: MONGOID,
+  createdAt: Date,
   firstName: String,
   lastName: String,
   birth: Date,
@@ -56,7 +79,7 @@ Reasons why we choosed MongoDB: :woman_teacher:
 }
 ```
 
-## 3. Setup
+## 3. Mongo and Docker commands
 
 * Install docker
 
@@ -93,4 +116,25 @@ docker container rm --force <container-name>
 * Container logs
 ```sh
 docker logs <container-name>
+```
+
+## 4. Mongo Shell
+
+[docs.mongodb.com/../mongo-shell/](https://docs.mongodb.com/manual/reference/mongo-shell/)
+
+Once you are in your mongo shell you can use the followings:
+
+* List all dbs
+```
+show dbs
+```
+
+* Use one db
+```
+use <Your-DB>
+```
+
+* List all collections
+```
+show collections
 ```
