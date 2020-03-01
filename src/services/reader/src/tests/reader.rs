@@ -1,35 +1,53 @@
 use crate::protos::reader::{reader_client::ReaderClient, ReadRequest};
 use crate::server::reader_server::create_server;
-use futures::stream;
+use async_stream;
+use mobi::Mobi;
+use std::fs;
 use tonic::Request;
+
+const TEST_PORT: usize = 55052;
+const CHUNK_SIZE: usize = 10 * 1000; // 10kB
+const MOBI_PATH: &str = "./src/tests/data/example.mobi";
+
+fn get_book() -> Vec<u8> {
+    fs::read(MOBI_PATH).expect("Couldn't open the book file.")
+}
+
+fn get_mobi() -> Mobi {
+    Mobi::from_path(MOBI_PATH).expect("Couldn't read the mobi file")
+}
 
 #[tokio::test]
 async fn reader_server_comm() {
     std::thread::spawn(move || {
-        let _ = create_server();
+        let _ = create_server(TEST_PORT);
     });
 
-    let mut client: ReaderClient<_> = ReaderClient::connect("htpp://localhost:50050")
-        .await
-        .expect("Couldn't create the client");
+    let expected_mobi = get_mobi();
 
-    let request_1 = ReadRequest {
-        chunk: vec![1, 2, 4],
+    let mut client: ReaderClient<_> =
+        ReaderClient::connect(format!("http://localhost:{}", TEST_PORT))
+            .await
+            .expect("Couldn't create the client");
+
+    let outbound = async_stream::stream! {
+        for (i, chunk) in get_book().chunks(CHUNK_SIZE).enumerate() {
+            yield ReadRequest {
+                chunk: chunk.to_vec()
+            };
+        }
     };
 
-    let request_2 = ReadRequest {
-        chunk: vec![5, 6, 8],
-    };
-
-    let requests = vec![request_1, request_2];
-
-    let streamed_request = Request::new(stream::iter(requests));
-
-    let resp = client
-        .receive_mobi(streamed_request)
+    let response = client
+        .receive_mobi(Request::new(outbound))
         .await
-        .expect("Error while sending the streamed request.")
-        .into_inner();
+        .expect("l");
+    let mut inbound = response.into_inner();
 
-    assert_eq!(resp.message, "Successfully processed 6 bytes sized file.")
+    let mut content = Vec::new();
+    while let Some(chunk) = inbound.message().await.expect("o") {
+        content.append(&mut chunk.book.expect("No book found.").chunked_content);
+    }
+
+    assert_eq!(expected_mobi.content, content);
 }

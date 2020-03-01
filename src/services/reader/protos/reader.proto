@@ -8,9 +8,14 @@ package reader;
 
 // The reader service definition.
 service Reader {
-  rpc ReceiveMOBI(stream ReadRequest) returns (ReadResponse) {}
+  rpc ReceiveMOBI(stream ReadRequest) returns (stream ReadResponse) {}
 }
 
 message ReadRequest { bytes chunk = 1; }
 
-message ReadResponse { string message = 1; }
+message ReadResponse {
+  MobiBook book = 1;
+  string message = 2;
+}
+
+message MobiBook { bytes chunked_content = 1; }

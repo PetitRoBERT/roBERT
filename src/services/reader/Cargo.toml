@@ -9,6 +9,8 @@ name = "reader-server"
 path = "src/service.rs"
 
 [dependencies]
+async-stream="0.2"
+mobi={ git = "https://github.com/wojciechkepka/mobi-rs", rev = "e85bf39651c4c81195a8ef302d61f9f4697ea646" }
 tonic="0.1"
 prost="0.6"
 tokio = { version = "0.2", features = ["macros"] }
