@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_outer_classname = "ReaderProto";
+option objc_class_prefix = "HLW";
+
+package reader;
+
+// The reader service definition.
+service Reader {
+    rpc ReadMOBI (ReadRequest) returns (ReadResponse) {}
+}
+
+message ReadRequest {
+    int32 a = 1;
+}
+
+message ReadResponse {
+    int32 b = 1;
+}

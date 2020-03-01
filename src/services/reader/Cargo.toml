@@ -1,0 +1,17 @@
+[package]
+name = "reader"
+version = "0.1.0"
+authors = ["Anthony D'Amato <anthony.damato@hotmail.fr>"]
+edition = "2018"
+
+[[bin]]
+name = "reader-server"
+path = "src/service.rs"
+
+[dependencies]
+tonic="0.1"
+prost="0.6"
+tokio = { version = "0.2", features = ["macros"] }
+
+[build-dependencies]
+tonic-build="0.1"
