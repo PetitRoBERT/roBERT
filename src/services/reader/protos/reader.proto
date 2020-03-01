@@ -8,13 +8,9 @@ package reader;
 
 // The reader service definition.
 service Reader {
-    rpc ReadMOBI (ReadRequest) returns (ReadResponse) {}
+  rpc ReceiveMOBI(stream ReadRequest) returns (ReadResponse) {}
 }
 
-message ReadRequest {
-    int32 a = 1;
-}
+message ReadRequest { bytes chunk = 1; }
 
-message ReadResponse {
-    int32 b = 1;
-}
+message ReadResponse { string message = 1; }
