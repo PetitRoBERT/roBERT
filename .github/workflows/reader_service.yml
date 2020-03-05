@@ -1,0 +1,21 @@
+name: Rust
+
+on:
+  pull_request:
+    paths:
+      - "./src/services/reader"
+    branches: [ master ]
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose --all
+    - name: Run cargo fmt check 
+      run: cargo fmt -- --check
+    - name: Run tests
+      run: cargo test --verbose --all
