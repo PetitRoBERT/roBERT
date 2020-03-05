@@ -2,8 +2,6 @@ name: Rust
 
 on:
   pull_request:
-    paths:
-      - "./src/services/reader"
     branches: [ master ]
   
 jobs:
