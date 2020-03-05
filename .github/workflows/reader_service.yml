@@ -10,11 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - working-directory: ./src/services/reader
     - uses: actions/checkout@v2
     - name: Build
+      working-directory: ./src/services/reader
       run: cargo build --verbose --all
     - name: Run cargo fmt check 
+      working-directory: ./src/services/reader
       run: cargo fmt -- --check
     - name: Run tests
+      working-directory: ./src/services/reader
       run: cargo test --verbose --all
