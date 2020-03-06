@@ -5,6 +5,7 @@ use mobi::Mobi;
 use std::fs;
 use tonic::Request;
 
+const TEST_HOSTNAME: &str = "127.0.0.1";
 const TEST_PORT: usize = 55052;
 const CHUNK_SIZE: usize = 10 * 1000; // 10kB
 const MOBI_PATH: &str = "./src/tests/data/example.mobi";
@@ -20,13 +21,13 @@ fn get_mobi() -> Mobi {
 #[tokio::test]
 async fn reader_server_comm() {
     std::thread::spawn(move || {
-        let _ = create_server(TEST_PORT);
+        let _ = create_server(TEST_HOSTNAME, TEST_PORT);
     });
 
     let expected_mobi = get_mobi();
 
     let mut client: ReaderClient<_> =
-        ReaderClient::connect(format!("http://localhost:{}", TEST_PORT))
+        ReaderClient::connect(format!("http://{}:{}", TEST_HOSTNAME, TEST_PORT))
             .await
             .expect("Couldn't create the client");
 
