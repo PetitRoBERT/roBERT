@@ -29,5 +29,7 @@ jobs:
         run: cargo build --verbose --all --manifest-path ./src/services/reader/Cargo.toml --target-dir ./target
       - name: Run cargo fmt check
         run: cargo fmt --manifest-path ./src/services/reader/Cargo.toml -- --check
+      - name: Run clippy
+        run: cargo clippy --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target -- -D warnings
       - name: Run tests
-        run: cargo test  --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target
+        run: cargo test --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target
