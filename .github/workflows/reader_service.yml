@@ -1,22 +1,33 @@
-name: Rust
+name: rust_reader
 
 on:
   pull_request:
-    branches: [ master ]
-  
+    branches: [master]
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      working-directory: ./src/services/reader
-      run: cargo build --verbose --all
-    - name: Run cargo fmt check 
-      working-directory: ./src/services/reader
-      run: cargo fmt -- --check
-    - name: Run tests
-      working-directory: ./src/services/reader
-      run: cargo test --verbose --all
+      - uses: actions/checkout@v2
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build--${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Build
+        run: cargo build --verbose --all --manifest-path ./src/services/reader/Cargo.toml --target-dir ./target
+      - name: Run cargo fmt check
+        run: cargo fmt --manifest-path ./src/services/reader/Cargo.toml -- --check
+      - name: Run tests
+        run: cargo test  --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target
