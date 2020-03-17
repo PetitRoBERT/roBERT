@@ -2,19 +2,18 @@ import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { microserviceOptions } from './grpc.options';
+import { databaseMicroserviceOptions } from './grpc.options';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
         name: 'DATABASE_PACKAGE',
-        // TODO: rename based on which micro service
-        ...microserviceOptions
-      }
-    ])
+        ...databaseMicroserviceOptions,
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

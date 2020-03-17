@@ -9,8 +9,8 @@ package database;
 
 
 // Declare a service for each controller you have
-service DatabaseService {
-    rpc FindOneAuthorById (AuthorById) returns (Author);
+service AuthorService {
+    rpc FindOneById (AuthorById) returns (Author);
 }
 
 message AuthorById {
