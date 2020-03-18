@@ -66,8 +66,8 @@ impl Reader for RobertReader {
 }
 
 #[tokio::main]
-pub async fn create_server(port: usize) -> Result<(), Box<dyn std::error::Error>> {
-    let addr = format!("[::1]:{}", port).parse()?;
+pub async fn create_server(hostname: &str, port: usize) -> Result<(), Box<dyn std::error::Error>> {
+    let addr = format!("{}:{}", hostname, port).parse()?;
     let reader = RobertReader::default();
 
     Server::builder()

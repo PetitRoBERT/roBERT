@@ -1,0 +1,35 @@
+name: rust_reader
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build--${{ hashFiles('src/services/reader/Cargo.lock') }}
+      - name: Build
+        run: cargo build --verbose --all --manifest-path ./src/services/reader/Cargo.toml --target-dir ./target
+      - name: Run cargo fmt check
+        run: cargo fmt --manifest-path ./src/services/reader/Cargo.toml -- --check
+      - name: Run clippy
+        run: cargo clippy --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target -- -D warnings
+      - name: Run tests
+        run: cargo test --verbose --all --manifest-path  ./src/services/reader/Cargo.toml --target-dir ./target
