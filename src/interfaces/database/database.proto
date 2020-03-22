@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package database;
+
+// TODO: split into multiple proto def, one by service (author, books, ...) ?
+// https://github.com/nestjs/nest/issues/998
+// This way we won't need to provide arguments to @GrpcMethod()
+// https://docs.nestjs.com/microservices/grpc#sample-grpc-service
+
+
+// Declare a service for each controller you have
+service AuthorService {
+    rpc FindOneById (AuthorById) returns (Author) {}
+}
+
+message AuthorById {
+    // TODO: change to bytes
+    int32 id = 1;
+}
+
+message Author {
+    int32 id = 1;
+    string name = 2;
+}

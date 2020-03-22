@@ -1,0 +1,13 @@
+{
+  "name": "interfaces",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "PetitRobert",
+  "types": "public-api.ts",
+  "license": "MIT",
+  "dependencies": {
+    "grpc": "^1.24.2",
+    "rxjs": "^6.5.4",
+    "rxjs-grpc": "^0.2.5"
+  }
+}
