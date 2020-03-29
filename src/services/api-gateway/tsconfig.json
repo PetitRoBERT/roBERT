@@ -10,7 +10,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "paths": {}
+    "paths": {
+      "@app/ts-interfaces": [
+        "libs/ts-interfaces/src"
+      ],
+      "@app/ts-interfaces/*": [
+        "libs/ts-interfaces/src/*"
+      ]
+    }
   },
   "exclude": [
     "node_modules",

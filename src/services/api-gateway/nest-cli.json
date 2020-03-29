@@ -25,6 +25,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/database/tsconfig.app.json"
       }
+    },
+    "ts-interfaces": {
+      "type": "library",
+      "root": "libs/ts-interfaces",
+      "entryFile": "index",
+      "sourceRoot": "libs/ts-interfaces/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/ts-interfaces/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { AuthorService } from 'interfaces';
+import { AuthorService, Author } from '@app/ts-interfaces';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -12,7 +13,7 @@ export class AppService implements OnModuleInit {
     this.authorService = this.databaseClient.getService<AuthorService>('AuthorService');
   }
 
-  getAuthor() {
+  getAuthor(): Observable<Author> {
     return this.authorService.findOneById({ id: 42 });
   }
 }
