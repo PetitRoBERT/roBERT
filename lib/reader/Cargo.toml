@@ -1,0 +1,14 @@
+[package]
+name = "reader"
+version = "0.1.0"
+authors = ["Anthony D'Amato <anthony.damato@hotmail.fr>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "reader"
+path = "src/main.rs"
+
+[dependencies]
+encoding = "0.2"
