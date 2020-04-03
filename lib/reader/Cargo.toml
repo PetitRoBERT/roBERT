@@ -1,5 +1,5 @@
 [package]
-name = "reader"
+name = "book-reader"
 version = "0.1.0"
 authors = ["Anthony D'Amato <anthony.damato@hotmail.fr>"]
 edition = "2018"

@@ -2,6 +2,8 @@ use std::io::prelude::Seek;
 use std::io::prelude::*;
 use std::io::{BufReader, IoSliceMut, SeekFrom};
 
+use crate::errors::ReaderError;
+
 // From mobi-python:
 //
 // HEADER is '>32shhIIIIII4s4sIIH'
@@ -31,7 +33,7 @@ pub struct Header {
 }
 
 impl Header {
-    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Header {
+    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<Header, ReaderError> {
         let mut title = [0; 32];
         let mut attributes = [0; 2];
         let mut version = [0; 2];
@@ -64,8 +66,8 @@ impl Header {
             IoSliceMut::new(&mut number_of_records),
         ];
 
-        let _ = buffer.read_vectored(bufs);
-        Header {
+        let _ = buffer.read_vectored(bufs)?;
+        Ok(Header {
             title: String::from_utf8_lossy(&title)
                 .to_owned()
                 .trim_matches(char::from(0))
@@ -83,7 +85,7 @@ impl Header {
             unique_id_seed: u32::from_be_bytes(unique_id_seed),
             next_record_list_id: u32::from_be_bytes(next_record_list_id),
             number_of_records: u16::from_be_bytes(number_of_records),
-        }
+        })
     }
 }
 
@@ -97,7 +99,7 @@ pub struct HeaderRecord {
 }
 
 impl HeaderRecord {
-    fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> HeaderRecord {
+    fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<HeaderRecord, ReaderError> {
         let mut record_data_offset = [0; 4];
         let mut unique_id = [0; 4];
 
@@ -106,20 +108,20 @@ impl HeaderRecord {
             IoSliceMut::new(&mut unique_id),
         ];
 
-        let _ = buffer.read_vectored(bufs);
-        HeaderRecord {
+        let _ = buffer.read_vectored(bufs)?;
+        Ok(HeaderRecord {
             record_data_offset: u32::from_be_bytes(record_data_offset),
             unique_id: u32::from_be_bytes(unique_id),
-        }
+        })
     }
 
     pub fn parse_all(
         nb_of_records: u16,
         buffer: &mut BufReader<std::fs::File>,
-    ) -> Vec<HeaderRecord> {
+    ) -> Result<Vec<HeaderRecord>, ReaderError> {
         (0..nb_of_records)
             .map(|_| Self::from_buffer(buffer))
-            .collect::<Vec<HeaderRecord>>()
+            .collect()
     }
 }
 
@@ -138,7 +140,10 @@ pub struct HeaderPalmDocForMOBI {
 }
 
 impl HeaderPalmDocForMOBI {
-    pub fn from_buffer(offset: u32, buffer: &mut BufReader<std::fs::File>) -> HeaderPalmDocForMOBI {
+    pub fn from_buffer(
+        offset: u32,
+        buffer: &mut BufReader<std::fs::File>,
+    ) -> Result<HeaderPalmDocForMOBI, ReaderError> {
         let mut compression = [0; 2];
         let mut blank_1 = [0; 2];
         let mut text_length = [0; 4];
@@ -157,10 +162,10 @@ impl HeaderPalmDocForMOBI {
             IoSliceMut::new(&mut blank_2),
         ];
 
-        let _ = buffer.seek(SeekFrom::Start(u64::from(offset)));
+        let _ = buffer.seek(SeekFrom::Start(u64::from(offset)))?;
 
-        let _ = buffer.read_vectored(bufs);
-        HeaderPalmDocForMOBI {
+        let _ = buffer.read_vectored(bufs)?;
+        Ok(HeaderPalmDocForMOBI {
             compression: u16::from_be_bytes(compression),
             blank_1: u16::from_be_bytes(blank_1),
             text_length: u32::from_be_bytes(text_length),
@@ -168,7 +173,7 @@ impl HeaderPalmDocForMOBI {
             record_size: u16::from_be_bytes(record_size),
             encryption_type: u16::from_be_bytes(encryption_type),
             blank_2: u16::from_be_bytes(blank_2),
-        }
+        })
     }
 }
 
@@ -183,7 +188,10 @@ pub struct HeaderPalmDoc {
 }
 
 impl HeaderPalmDoc {
-    pub fn from_buffer(offset: u32, buffer: &mut BufReader<std::fs::File>) -> HeaderPalmDoc {
+    pub fn from_buffer(
+        offset: u32,
+        buffer: &mut BufReader<std::fs::File>,
+    ) -> Result<HeaderPalmDoc, ReaderError> {
         let mut compression = [0; 2];
         let mut blank_1 = [0; 2];
         let mut text_length = [0; 4];
@@ -200,17 +208,17 @@ impl HeaderPalmDoc {
             IoSliceMut::new(&mut text_offset),
         ];
 
-        let _ = buffer.seek(SeekFrom::Start(offset as u64));
+        let _ = buffer.seek(SeekFrom::Start(offset as u64))?;
 
-        let _ = buffer.read_vectored(bufs);
-        HeaderPalmDoc {
+        let _ = buffer.read_vectored(bufs)?;
+        Ok(HeaderPalmDoc {
             compression: u16::from_be_bytes(compression),
             blank_1: u16::from_be_bytes(blank_1),
             text_length: u32::from_be_bytes(text_length),
             record_count: u16::from_be_bytes(record_count),
             record_size: u16::from_be_bytes(record_size),
             text_offset: u32::from_be_bytes(text_offset),
-        }
+        })
     }
 }
 
@@ -265,7 +273,7 @@ pub struct HeaderMOBI {
 }
 
 impl HeaderMOBI {
-    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> HeaderMOBI {
+    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<HeaderMOBI, ReaderError> {
         let mut identifier = [0; 4];
         let mut header_length = [0; 4];
         let mut mobi_type = [0; 4];
@@ -345,9 +353,9 @@ impl HeaderMOBI {
             IoSliceMut::new(&mut blank_6),
         ];
 
-        let _ = buffer.read_vectored(bufs);
+        let _ = buffer.read_vectored(bufs)?;
 
-        HeaderMOBI {
+        Ok(HeaderMOBI {
             identifier: String::from_utf8_lossy(&identifier)
                 .to_owned()
                 .trim_matches(char::from(0))
@@ -394,7 +402,7 @@ impl HeaderMOBI {
             blank_5,
             flis_record: u32::from_be_bytes(flis_record),
             blank_6,
-        }
+        })
     }
 
     pub fn has_drm(&self) -> bool {
@@ -405,19 +413,18 @@ impl HeaderMOBI {
         self.exth_flags == 64
     }
 
-    pub fn full_title(&self, offset: u32, buffer: &mut BufReader<std::fs::File>) -> String {
-        println!("offset: {:?}", self.full_name_offset);
-        println!("length: {:?}", self.full_name_length);
-
+    pub fn full_title(
+        &self,
+        offset: u32,
+        buffer: &mut BufReader<std::fs::File>,
+    ) -> Result<String, ReaderError> {
         let _ = buffer.seek(SeekFrom::Start(u64::from(offset + self.full_name_offset)));
 
         let mut buf = vec![0; self.full_name_offset as usize];
-        println!("{:?}", buf);
         let _ = buffer.read_exact(&mut buf);
-        println!("{:?}", buf);
-        String::from_utf8_lossy(&buf)
+        Ok(String::from_utf8_lossy(&buf)
             .to_owned()
             .trim_matches(char::from(0))
-            .to_string()
+            .to_string())
     }
 }
