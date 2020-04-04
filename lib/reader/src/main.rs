@@ -7,5 +7,5 @@ use book::parse_book;
 const FILE_PATH: &str = "./data/ex.mobi";
 
 pub fn main() {
-    parse_book(FILE_PATH).unwrap();
+    let res = parse_book(FILE_PATH).expect("Error");
 }

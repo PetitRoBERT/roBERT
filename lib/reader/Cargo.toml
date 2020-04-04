@@ -12,3 +12,4 @@ path = "src/main.rs"
 
 [dependencies]
 encoding = "0.2"
+rayon = "1.3"

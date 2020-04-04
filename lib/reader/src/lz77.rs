@@ -1,5 +1,7 @@
+use crate::errors::ReaderError;
+
 // Source: https://wiki.mobileread.com/wiki/PalmDOC
-pub fn decompress(data: &[u8]) -> Result<Vec<u8>, String> {
+pub fn decompress(data: &[u8]) -> Result<Vec<u8>, ReaderError> {
     let length = data.len();
     let mut text = Vec::<u8>::new();
     let mut offset = 0;
@@ -51,11 +53,11 @@ pub fn decompress(data: &[u8]) -> Result<Vec<u8>, String> {
                 for _ in 0..lz77_length {
                     let text_pos = current_text_length as i32 - lz77_offset as i32;
                     if text_pos < 0 {
-                        return Err(format!(
+                        return Err(ReaderError::DecodingError(format!(
                             "WARNING: LZ77 decompression reference is before
                             beginning of text! {}",
-                            lz77
-                        ));
+                            lz77,
+                        )));
                     }
                     text.push(text[text_pos as usize]);
                     current_text_length += 1;

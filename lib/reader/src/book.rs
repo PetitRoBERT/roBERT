@@ -1,4 +1,5 @@
 use encoding::{all::ISO_8859_1, DecoderTrap, Encoding};
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::{
     prelude::{Read, Seek},
@@ -29,7 +30,6 @@ pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
         MOBI_IDENTIFIER => {
             let palmdoc_header =
                 HeaderPalmDocForMOBI::from_buffer(identifier_header_offset, &mut buffer);
-
             let mobi_header = HeaderMOBI::from_buffer(&mut buffer)?;
 
             let exth_header: Option<usize> = if mobi_header.has_exth_header() {
@@ -43,20 +43,34 @@ pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
         PALMDOC_IDENTIFIER => {
             let palmdoc_header = HeaderPalmDoc::from_buffer(identifier_header_offset, &mut buffer)?;
 
-            let record_1 = record_headers[1].clone();
-            let record_2 = record_headers[record_headers.len() - 2].clone();
-            let size = record_2.record_data_offset - record_1.record_data_offset;
-            let _ = buffer.seek(SeekFrom::Start(record_1.record_data_offset as u64));
+            let first_data_record_pos = record_headers[1].record_data_offset as usize;
+            let _ = buffer.seek(SeekFrom::Start(first_data_record_pos as u64))?;
+
+            let last_data_record_pos =
+                record_headers[record_headers.len() - 2].record_data_offset as usize;
+
+            let mut compressed_data = vec![0; last_data_record_pos - first_data_record_pos];
+            buffer.read_exact(&mut compressed_data)?;
 
             // PalmDoc custom compression
             if palmdoc_header.compression == 2 {
-                let mut data_to_decompress = vec![0; size as usize];
-                let _ = buffer.read(&mut data_to_decompress)?;
+                record_headers
+                    .par_iter()
+                    .enumerate()
+                    .skip(1)
+                    .take(record_headers.len() - 3)
+                    .map(|(index, record_header)| {
+                        let start =
+                            record_header.record_data_offset as usize - first_data_record_pos;
+                        let end = record_headers[index + 1].record_data_offset as usize
+                            - first_data_record_pos;
+                        let lz77_decompressed = decompress(&compressed_data[start..end])?;
 
-                let lz77_decompressed = decompress(&data_to_decompress).unwrap();
-                ISO_8859_1
-                    .decode(&lz77_decompressed, DecoderTrap::Strict)
-                    .map_err(|err| ReaderError::DecodingError(err.to_string()))
+                        ISO_8859_1
+                            .decode(&lz77_decompressed, DecoderTrap::Strict)
+                            .map_err(|err| ReaderError::DecodingError(err.to_string()))
+                    })
+                    .collect()
             } else {
                 Err(ReaderError::NotImplemented)
             }
