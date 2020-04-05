@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { AuthorService } from './author.service';
 import { GrpcMethod } from '@nestjs/microservices';
-import { AuthorById, Author } from 'interfaces';
+import { AuthorById, Author } from '@app/ts-interfaces';
 
 @Controller('author')
 export class AuthorController {

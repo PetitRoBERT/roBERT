@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Author } from 'interfaces';
+import { Author } from '@app/ts-interfaces';
 
 @Injectable()
 export class AuthorService {
