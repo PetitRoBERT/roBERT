@@ -130,7 +130,7 @@ impl HeaderRecord {
 // HEADER: >HHIHHHH
 #[derive(Debug)]
 pub struct HeaderPalmDocForMOBI {
-    compression: u16,
+    pub compression: u16,
     blank_1: u16,
     text_length: u32,
     record_count: u16,
@@ -236,7 +236,7 @@ pub struct HeaderMOBI {
 
     reserved: [u8; 44],
 
-    first_non_book_index: u32,
+    pub first_non_book_index: u32,
     pub full_name_offset: u32,
     pub full_name_length: u32,
 
@@ -269,7 +269,10 @@ pub struct HeaderMOBI {
     fcis_record: u32,
     blank_5: [u8; 4],
     flis_record: u32,
-    blank_6: [u8; 4],
+    blank_6: [u8; 2],
+    useful_blank_6: [u8; 2],
+
+    pub extra_bytes: u32,
 }
 
 impl HeaderMOBI {
@@ -316,7 +319,8 @@ impl HeaderMOBI {
         let mut fcis_record = [0; 4];
         let mut blank_5 = [0; 4];
         let mut flis_record = [0; 4];
-        let mut blank_6 = [0; 4];
+        let mut blank_6 = [0; 2];
+        let mut useful_blank_6 = [0; 2];
 
         let bufs = &mut [
             IoSliceMut::new(&mut identifier),
@@ -351,9 +355,14 @@ impl HeaderMOBI {
             IoSliceMut::new(&mut blank_5),
             IoSliceMut::new(&mut flis_record),
             IoSliceMut::new(&mut blank_6),
+            IoSliceMut::new(&mut useful_blank_6),
         ];
 
         let _ = buffer.read_vectored(bufs)?;
+        println!("useful_blank_6 {:?}", useful_blank_6);
+
+        let useful_blank_6_1 = u16::from_be_bytes(useful_blank_6);
+        println!("useful_blank_6 {}", useful_blank_6_1 & 0xFFFE);
 
         Ok(HeaderMOBI {
             identifier: String::from_utf8_lossy(&identifier)
@@ -402,6 +411,9 @@ impl HeaderMOBI {
             blank_5,
             flis_record: u32::from_be_bytes(flis_record),
             blank_6,
+            useful_blank_6,
+
+            extra_bytes: 2 * (useful_blank_6_1 & 0xFFFE).count_ones(),
         })
     }
 

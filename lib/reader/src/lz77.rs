@@ -7,7 +7,7 @@ pub fn decompress(data: &[u8]) -> Result<Vec<u8>, ReaderError> {
     let mut offset = 0;
     while offset < length {
         let byte = data[offset];
-        offset += 1;
+        offset += 1; // Byte has been read, shift 1
         match byte {
             // 0x00: "1 literal" copy that byte unmodified to the decompressed stream.
             // 0x09 to 0x7f: "1 literal" copy that byte unmodified to the decompressed stream.
@@ -17,9 +17,10 @@ pub fn decompress(data: &[u8]) -> Result<Vec<u8>, ReaderError> {
             // and that many literals are copied
             // unmodified from the compressed stream to the decompressed stream.
             0x01..=0x08 => {
-                if offset + byte as usize <= length {
-                    text.extend(&data[offset..(offset + (byte as usize))]);
-                    offset += byte as usize;
+                let byte = byte as usize;
+                if offset + byte <= length {
+                    text.extend(&data[offset..(offset + byte)]);
+                    offset += byte;
                 }
             }
             // 0x80 to 0xbf: "length, distance" pair: the 2 leftmost bits of this byte ('10')
