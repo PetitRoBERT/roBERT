@@ -10,7 +10,7 @@ path = "src/service.rs"
 
 [dependencies]
 async-stream="0.2"
-mobi={ git = "https://github.com/wojciechkepka/mobi-rs", rev = "e85bf39651c4c81195a8ef302d61f9f4697ea646" }
+book-reader={ path="../../../lib/reader" }
 tonic="0.1"
 prost="0.6"
 tokio = { version = "0.2", features = ["macros"] }

@@ -2,7 +2,7 @@ mod book;
 mod errors;
 mod header;
 mod lz77;
-use book::parse_book;
+use book::{from_path_raw, parse_book};
 
 const FILE_PATH: &str = "./data/ex.mobi";
 
@@ -11,4 +11,6 @@ pub fn main() {
 
     let res = parse_book(&buffer).expect("Error");
     println!("{}", res);
+
+    let res = from_path_raw(FILE_PATH);
 }

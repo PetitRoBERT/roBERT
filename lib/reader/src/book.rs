@@ -12,7 +12,12 @@ use crate::lz77::decompress;
 const MOBI_IDENTIFIER: &str = "BOOKMOBI";
 const PALMDOC_IDENTIFIER: &str = "TEXtREAd";
 
-pub fn parse_book(buffer: &[u8]) -> Result<String, ReaderError> {
+pub fn from_path_raw(path: &str) -> Result<Vec<u8>, ReaderError> {
+    let buffer = std::fs::read(path)?;
+    parse_book_raw(&buffer)
+}
+
+pub fn parse_book_raw(buffer: &[u8]) -> Result<Vec<u8>, ReaderError> {
     let mut cursor = Cursor::new(buffer);
 
     // First parse the Header
@@ -58,6 +63,14 @@ pub fn parse_book(buffer: &[u8]) -> Result<String, ReaderError> {
     }
 }
 
+pub fn parse_book(buffer: &[u8]) -> Result<String, ReaderError> {
+    parse_book_raw(buffer).and_then(|book_raw| {
+        ISO_8859_1
+            .decode(&book_raw, DecoderTrap::Strict)
+            .map_err(|err| ReaderError::DecodingError(err.to_string()))
+    })
+}
+
 fn extract_data_from_palmdoc(
     cursor: &mut Cursor<&[u8]>,
     record_headers: &[HeaderRecord],
@@ -65,7 +78,7 @@ fn extract_data_from_palmdoc(
     to: usize,
     compression: u16,
     extra: usize,
-) -> Result<String, ReaderError> {
+) -> Result<Vec<u8>, ReaderError> {
     let first_data_record_pos = record_headers[from].record_data_offset as usize;
     let _ = cursor.seek(SeekFrom::Start(first_data_record_pos as u64))?;
 
@@ -73,9 +86,10 @@ fn extract_data_from_palmdoc(
 
     let mut compressed_data = vec![0; last_data_record_pos - first_data_record_pos];
     cursor.read_exact(&mut compressed_data)?;
+
     // PalmDoc custom compression
     if compression == 2 {
-        (from..to)
+        Ok((from..to)
             .into_par_iter()
             .map(|index| {
                 let start =
@@ -83,13 +97,11 @@ fn extract_data_from_palmdoc(
                 let end = record_headers[index + 1].record_data_offset as usize
                     - first_data_record_pos
                     - extra;
-                let lz77_decompressed = decompress(&compressed_data[start..end])?;
-
-                ISO_8859_1
-                    .decode(&lz77_decompressed, DecoderTrap::Strict)
-                    .map_err(|err| ReaderError::DecodingError(err.to_string()))
+                decompress(&compressed_data[start..end])
             })
-            .collect()
+            .flatten()
+            .collect::<Vec<Vec<u8>>>()
+            .concat())
     } else {
         Err(ReaderError::NotImplemented)
     }
@@ -103,5 +115,7 @@ mod tests {
         let buffer = std::fs::read(file_path).expect("Couldn't read file");
 
         let _ = super::parse_book(&buffer).expect("Error");
+
+        let _ = super::parse_book_raw(&buffer).expect("Error");
     }
 }
