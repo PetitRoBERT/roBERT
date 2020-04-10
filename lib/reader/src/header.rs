@@ -1,6 +1,5 @@
-use std::io::prelude::Seek;
-use std::io::prelude::*;
-use std::io::{BufReader, IoSliceMut, SeekFrom};
+use std::io::prelude::{Read, Seek};
+use std::io::{Cursor, IoSliceMut, SeekFrom};
 
 use crate::errors::ReaderError;
 
@@ -33,7 +32,7 @@ pub struct Header {
 }
 
 impl Header {
-    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<Header, ReaderError> {
+    pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Header, ReaderError> {
         let mut title = [0; 32];
         let mut attributes = [0; 2];
         let mut version = [0; 2];
@@ -66,7 +65,7 @@ impl Header {
             IoSliceMut::new(&mut number_of_records),
         ];
 
-        let _ = buffer.read_vectored(bufs)?;
+        let _ = cursor.read_vectored(bufs)?;
         Ok(Header {
             title: String::from_utf8_lossy(&title)
                 .to_owned()
@@ -99,7 +98,7 @@ pub struct HeaderRecord {
 }
 
 impl HeaderRecord {
-    fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<HeaderRecord, ReaderError> {
+    fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<HeaderRecord, ReaderError> {
         let mut record_data_offset = [0; 4];
         let mut unique_id = [0; 4];
 
@@ -108,7 +107,7 @@ impl HeaderRecord {
             IoSliceMut::new(&mut unique_id),
         ];
 
-        let _ = buffer.read_vectored(bufs)?;
+        let _ = cursor.read_vectored(bufs)?;
         Ok(HeaderRecord {
             record_data_offset: u32::from_be_bytes(record_data_offset),
             unique_id: u32::from_be_bytes(unique_id),
@@ -117,10 +116,10 @@ impl HeaderRecord {
 
     pub fn parse_all(
         nb_of_records: u16,
-        buffer: &mut BufReader<std::fs::File>,
+        cursor: &mut Cursor<&[u8]>,
     ) -> Result<Vec<HeaderRecord>, ReaderError> {
         (0..nb_of_records)
-            .map(|_| Self::from_buffer(buffer))
+            .map(|_| Self::from_cursor(cursor))
             .collect()
     }
 }
@@ -140,9 +139,9 @@ pub struct HeaderPalmDocForMOBI {
 }
 
 impl HeaderPalmDocForMOBI {
-    pub fn from_buffer(
+    pub fn from_cursor(
         offset: u32,
-        buffer: &mut BufReader<std::fs::File>,
+        cursor: &mut Cursor<&[u8]>,
     ) -> Result<HeaderPalmDocForMOBI, ReaderError> {
         let mut compression = [0; 2];
         let mut blank_1 = [0; 2];
@@ -162,9 +161,9 @@ impl HeaderPalmDocForMOBI {
             IoSliceMut::new(&mut blank_2),
         ];
 
-        let _ = buffer.seek(SeekFrom::Start(u64::from(offset)))?;
+        let _ = cursor.seek(SeekFrom::Start(u64::from(offset)))?;
 
-        let _ = buffer.read_vectored(bufs)?;
+        let _ = cursor.read_vectored(bufs)?;
         Ok(HeaderPalmDocForMOBI {
             compression: u16::from_be_bytes(compression),
             blank_1: u16::from_be_bytes(blank_1),
@@ -188,9 +187,9 @@ pub struct HeaderPalmDoc {
 }
 
 impl HeaderPalmDoc {
-    pub fn from_buffer(
+    pub fn from_cursor(
         offset: u32,
-        buffer: &mut BufReader<std::fs::File>,
+        cursor: &mut Cursor<&[u8]>,
     ) -> Result<HeaderPalmDoc, ReaderError> {
         let mut compression = [0; 2];
         let mut blank_1 = [0; 2];
@@ -208,9 +207,9 @@ impl HeaderPalmDoc {
             IoSliceMut::new(&mut text_offset),
         ];
 
-        let _ = buffer.seek(SeekFrom::Start(offset as u64))?;
+        let _ = cursor.seek(SeekFrom::Start(offset as u64))?;
 
-        let _ = buffer.read_vectored(bufs)?;
+        let _ = cursor.read_vectored(bufs)?;
         Ok(HeaderPalmDoc {
             compression: u16::from_be_bytes(compression),
             blank_1: u16::from_be_bytes(blank_1),
@@ -276,7 +275,7 @@ pub struct HeaderMOBI {
 }
 
 impl HeaderMOBI {
-    pub fn from_buffer(buffer: &mut BufReader<std::fs::File>) -> Result<HeaderMOBI, ReaderError> {
+    pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<HeaderMOBI, ReaderError> {
         let mut identifier = [0; 4];
         let mut header_length = [0; 4];
         let mut mobi_type = [0; 4];
@@ -358,11 +357,9 @@ impl HeaderMOBI {
             IoSliceMut::new(&mut useful_blank_6),
         ];
 
-        let _ = buffer.read_vectored(bufs)?;
-        println!("useful_blank_6 {:?}", useful_blank_6);
+        let _ = cursor.read_vectored(bufs)?;
 
         let useful_blank_6_1 = u16::from_be_bytes(useful_blank_6);
-        println!("useful_blank_6 {}", useful_blank_6_1 & 0xFFFE);
 
         Ok(HeaderMOBI {
             identifier: String::from_utf8_lossy(&identifier)
@@ -428,12 +425,12 @@ impl HeaderMOBI {
     pub fn full_title(
         &self,
         offset: u32,
-        buffer: &mut BufReader<std::fs::File>,
+        cursor: &mut Cursor<&[u8]>,
     ) -> Result<String, ReaderError> {
-        let _ = buffer.seek(SeekFrom::Start(u64::from(offset + self.full_name_offset)));
+        let _ = cursor.seek(SeekFrom::Start(u64::from(offset + self.full_name_offset)));
 
         let mut buf = vec![0; self.full_name_offset as usize];
-        let _ = buffer.read_exact(&mut buf);
+        let _ = cursor.read_exact(&mut buf);
         Ok(String::from_utf8_lossy(&buf)
             .to_owned()
             .trim_matches(char::from(0))

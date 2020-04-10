@@ -1,9 +1,8 @@
 use encoding::{all::ISO_8859_1, DecoderTrap, Encoding};
 use rayon::prelude::*;
-use std::fs::File;
 use std::io::{
     prelude::{Read, Seek},
-    BufReader, SeekFrom,
+    Cursor, SeekFrom,
 };
 
 use crate::errors::ReaderError;
@@ -13,15 +12,14 @@ use crate::lz77::decompress;
 const MOBI_IDENTIFIER: &str = "BOOKMOBI";
 const PALMDOC_IDENTIFIER: &str = "TEXtREAd";
 
-pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
-    let f = File::open(file_path)?;
-    let mut buffer: BufReader<std::fs::File> = BufReader::new(f);
+pub fn parse_book(buffer: &[u8]) -> Result<String, ReaderError> {
+    let mut cursor = Cursor::new(buffer);
 
     // First parse the Header
-    let header = Header::from_buffer(&mut buffer)?;
+    let header = Header::from_cursor(&mut cursor)?;
 
     // Then parse record headers
-    let record_headers = HeaderRecord::parse_all(header.number_of_records, &mut buffer)?;
+    let record_headers = HeaderRecord::parse_all(header.number_of_records, &mut cursor)?;
 
     // Then parse PalmDocHeader inside the Record 0
     let identifier_header_offset = record_headers[0].record_data_offset;
@@ -29,13 +27,13 @@ pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
     match &(header._type + &header.creator)[..] {
         MOBI_IDENTIFIER => {
             let palmdoc_header =
-                HeaderPalmDocForMOBI::from_buffer(identifier_header_offset, &mut buffer)?;
-            let mobi_header = HeaderMOBI::from_buffer(&mut buffer)?;
+                HeaderPalmDocForMOBI::from_cursor(identifier_header_offset, &mut cursor)?;
+            let mobi_header = HeaderMOBI::from_cursor(&mut cursor)?;
             if mobi_header.has_exth_header() {
                 Err(ReaderError::NotImplemented)
             } else {
                 extract_data_from_palmdoc(
-                    &mut buffer,
+                    &mut cursor,
                     &record_headers,
                     1,
                     mobi_header.first_non_book_index as usize - 1,
@@ -45,9 +43,9 @@ pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
             }
         }
         PALMDOC_IDENTIFIER => {
-            let palmdoc_header = HeaderPalmDoc::from_buffer(identifier_header_offset, &mut buffer)?;
+            let palmdoc_header = HeaderPalmDoc::from_cursor(identifier_header_offset, &mut cursor)?;
             extract_data_from_palmdoc(
-                &mut buffer,
+                &mut cursor,
                 &record_headers,
                 1,
                 record_headers.len() - 2,
@@ -61,7 +59,7 @@ pub fn parse_book(file_path: &str) -> Result<String, ReaderError> {
 }
 
 fn extract_data_from_palmdoc(
-    buffer: &mut BufReader<std::fs::File>,
+    cursor: &mut Cursor<&[u8]>,
     record_headers: &[HeaderRecord],
     from: usize,
     to: usize,
@@ -69,12 +67,12 @@ fn extract_data_from_palmdoc(
     extra: usize,
 ) -> Result<String, ReaderError> {
     let first_data_record_pos = record_headers[from].record_data_offset as usize;
-    let _ = buffer.seek(SeekFrom::Start(first_data_record_pos as u64))?;
+    let _ = cursor.seek(SeekFrom::Start(first_data_record_pos as u64))?;
 
     let last_data_record_pos = record_headers[to].record_data_offset as usize;
 
     let mut compressed_data = vec![0; last_data_record_pos - first_data_record_pos];
-    buffer.read_exact(&mut compressed_data)?;
+    cursor.read_exact(&mut compressed_data)?;
     // PalmDoc custom compression
     if compression == 2 {
         (from..to)
@@ -94,5 +92,16 @@ fn extract_data_from_palmdoc(
             .collect()
     } else {
         Err(ReaderError::NotImplemented)
+    }
+}
+
+mod tests {
+    #[test]
+    fn read_example_mobi() {
+        let file_path: &str = "./data/ex.mobi";
+
+        let buffer = std::fs::read(file_path).expect("Couldn't read file");
+
+        let _ = super::parse_book(&buffer).expect("Error");
     }
 }
