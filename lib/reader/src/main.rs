@@ -12,5 +12,5 @@ pub fn main() {
     let res = parse_book(&buffer).expect("Error");
     println!("{}", res);
 
-    let res = from_path_raw(FILE_PATH);
+    let _ = from_path_raw(FILE_PATH);
 }

@@ -225,6 +225,7 @@ impl HeaderPalmDoc {
 //
 // HEADER:
 // '> IIII II 40s III IIIII IIII I 36s IIII 8s HHIIIII'
+#[allow(dead_code)]
 pub struct HeaderMOBI {
     pub identifier: String,
     header_length: u32,
@@ -274,6 +275,7 @@ pub struct HeaderMOBI {
     pub extra_bytes: u32,
 }
 
+#[allow(dead_code)]
 impl HeaderMOBI {
     pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<HeaderMOBI, ReaderError> {
         let mut identifier = [0; 4];
