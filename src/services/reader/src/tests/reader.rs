@@ -1,7 +1,7 @@
 use crate::protos::reader::{reader_client::ReaderClient, ReadRequest};
 use crate::server::reader_server::create_server;
 use async_stream;
-use mobi::Mobi;
+use book_reader::book;
 use std::fs;
 use tonic::Request;
 
@@ -14,8 +14,8 @@ fn get_book() -> Vec<u8> {
     fs::read(MOBI_PATH).expect("Couldn't open the book file.")
 }
 
-fn get_mobi() -> Mobi {
-    Mobi::from_path(MOBI_PATH).expect("Couldn't read the mobi file")
+fn get_mobi() -> Vec<u8> {
+    book::from_path_raw(MOBI_PATH).expect("Couldn't read the mobi file")
 }
 
 #[tokio::test]
@@ -50,5 +50,5 @@ async fn reader_server_comm() {
         content.append(&mut chunk.book.expect("No book found.").chunked_content);
     }
 
-    assert_eq!(expected_mobi.content, content);
+    assert_eq!(expected_mobi, content);
 }

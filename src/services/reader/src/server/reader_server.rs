@@ -2,8 +2,8 @@ use crate::protos::reader::{
     reader_server::{Reader, ReaderServer},
     MobiBook, ReadRequest, ReadResponse,
 };
+use book_reader::book;
 use futures::{Stream, StreamExt};
-use mobi::Mobi;
 use std::pin::Pin;
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -36,13 +36,9 @@ impl Reader for RobertReader {
             }
 
             // Now decode the received book
-            let mobi_book = Mobi::new(&full_bytes)?;
-
-            // Split the decoded book into useful pieces:
-            let Mobi {
-                content, // Vec[u8] holding the content of the book
-                ..
-            } = mobi_book;
+            let content = book::parse_book_raw(&full_bytes)
+                // TODO: Implement From ReaderError
+                .map_err(|err| tonic::Status::internal("Error with the parser".to_string()))?;
 
             let chunks = content.chunks(DEFAULT_CHUNK_SIZE);
 
