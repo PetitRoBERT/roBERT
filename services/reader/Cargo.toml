@@ -10,7 +10,7 @@ path = "src/service.rs"
 
 [dependencies]
 async-stream="0.2"
-book-reader={ path="../../../lib/reader" }
+book-reader={ path="../../libs/rust/reader" }
 tonic="0.1"
 prost="0.6"
 tokio = { version = "0.2", features = ["macros"] }
