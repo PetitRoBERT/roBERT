@@ -5,7 +5,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild:dev": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json",
-    "update-interfaces": "yarn remove interfaces && yarn add file:../../interfaces"
+    "update-interfaces": "yarn remove interfaces && yarn add file:../../base/node/interfaces"
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.3",
@@ -27,7 +27,7 @@
     "@nestjs/microservices": "^7.0.5",
     "@nestjs/platform-express": "^7.0.5",
     "grpc": "^1.24.2",
-    "interfaces": "file:../../interfaces",
+    "interfaces": "file:../../base/node/interfaces",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
     "rxjs": "^6.5.4"

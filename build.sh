@@ -9,8 +9,8 @@ set -e
 ### Rust
 docker build ./base/rust --tag base-rust
 
-### Javascript
-docker build ./base/javascript --tag base-javascript
+### Node
+docker build ./base/node --tag base-node
 
 # Services builds
 
@@ -18,10 +18,18 @@ docker build ./base/javascript --tag base-javascript
 
 docker build ./services/reader \
             --target build-reader \
-            --tag reader:build-reader
+            --tag reader:build
 
 docker build ./services/reader \
             --target production-reader \
             --tag reader:latest
 
 ### Nest Service
+
+docker build ./services/api-gateway \
+            --target build-api-gateway \
+            --tag api-gateway:build
+
+docker build ./services/api-gateway \
+            --target production-api-gateway \
+            --tag api-gateway:latest
