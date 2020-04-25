@@ -1,5 +1,3 @@
-use tonic_build;
-
 // This building script generate the necessary files
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let proto_root = "protos/reader.proto";
