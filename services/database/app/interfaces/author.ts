@@ -1,5 +1,6 @@
 export interface IAuthor {
     createdAt: Date;
+    updatedAt: Date;
     firstname: string;
     lastname: string;
     birth: Date;
