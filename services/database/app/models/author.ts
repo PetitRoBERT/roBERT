@@ -8,6 +8,7 @@ export interface IAuthorModel extends Document, IAuthor {
 
 export const AuthorSchema: Schema = new Schema({
     createdAt: Date,
+    updatedAt: Date,
     firstname: {
         type: String,
         trim: true,
@@ -50,11 +51,12 @@ AuthorSchema.pre<IAuthorModel>("save", function (next: any) {
     if (!this.createdAt) {
         this.createdAt = new Date();
     }
+    this.updatedAt = new Date();
     next();
 });
 
 AuthorSchema.methods.fullname = function (): string {
-    return (this.firstname + " " + this.lastname);
+    return (this.firstname.trim() + " " + this.lastname.trim());
 }
 
 export const Author: Model<IAuthorModel> = model<IAuthorModel>("Author", AuthorSchema);
