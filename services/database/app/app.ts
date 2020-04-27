@@ -1,7 +1,11 @@
 // lib/app.ts
 import express = require('express');
 import Database from "./database";
-import { Author } from "./models/author";
+import dotenv = require('dotenv');
+import author from './author';
+
+dotenv.config();
+const PORT = process.env.DB_PORT || 3000;
 
 new Database();
 
@@ -9,36 +13,11 @@ new Database();
 const app: express.Application = express();
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('<h1>Hello World 👋️</h1><ul><li>authors/</li></ul>');
 });
 
-app.get('/author/', (req, res) => {
-    const firstname = req.query.firstname;
-    const lastname = req.query.lastname;
+app.use('/authors', author());
 
-    const author = new Author({
-        firstname,
-        lastname
-    })
-
-    author.save()
-        .then((doc: any) => {
-            console.log(doc);
-            res.status(200)
-                .send({
-                    message: `Successfully added ${firstname} ${lastname} to DB 🍃`,
-                    doc
-                })
-        })
-        .catch((err: any) => {
-            console.error(err);
-            res.status(400)
-                .send({
-                    message: `Error :${err}`
-                })
-        });
-})
-
-app.listen(3000, () => {
-    console.log('Live on port 3000');
+app.listen(PORT, () => {
+    console.log(`Live on port http://localhost:${PORT}/`);
 });

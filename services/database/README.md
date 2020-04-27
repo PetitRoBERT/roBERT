@@ -2,6 +2,8 @@
 
 ## 0. Run
 
+### 0.1. Start
+
 Init Mongo and launches it with Docker
 ```sh
 docker pull mongo
@@ -14,8 +16,21 @@ yarn install
 yarn run dev
 ```
 
+### 0.2 Use
+
 Browse http://localhost:3000/
 
+Routes are:
+* `/`
+* `/authors/`
+  * `authors/` GET
+  * `authors/` DELETE
+  * `authors/:authorId` GET
+  * `authors/new` POST
+  * `authors/all` GET
+
+
+### 0.3 Terminate
 
 Kill docker
 ```sh
