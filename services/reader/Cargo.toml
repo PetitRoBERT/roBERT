@@ -5,12 +5,12 @@ authors = ["Anthony D'Amato <anthony.damato@hotmail.fr>"]
 edition = "2018"
 
 [[bin]]
-name = "reader-server"
-path = "src/service.rs"
+name = "reader-service"
+path = "src/main.rs"
 
 [dependencies]
 async-stream="0.2"
-book-reader={ path="../../libs/rust/reader" }
+book-reader={ path="./../../base/rust/libs/reader" }
 tonic="0.1"
 prost="0.6"
 tokio = { version = "0.2", features = ["macros"] }

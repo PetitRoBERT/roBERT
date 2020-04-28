@@ -1,0 +1,7 @@
+Dockerfile
+.dockerignore
+
+**/target
+**/.git
+**/.gitignore
+**/data
