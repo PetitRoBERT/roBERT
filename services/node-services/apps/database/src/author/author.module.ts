@@ -5,6 +5,6 @@ import { AuthorService } from './author.service';
 @Module({
   imports: [],
   controllers: [AuthorController],
-  providers: [AuthorService],
+  providers: [AuthorService]
 })
 export class AuthorModule {}
