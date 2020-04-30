@@ -6,30 +6,39 @@ set -e
 
 # Base builds
 
+docker pull petitrobert/base-rust:latest || true
+docker pull petitrobert/base-node:latest || true
+
 ### Rust
-docker build ./base/rust --tag base-rust
+docker build ./base/rust --tag petitrobert/base-rust:latest
 
 ### Node
-docker build ./base/node --tag base-node
+docker build ./base/node --tag petitrobert/base-node:latest
 
 # Services builds
 
 ### Reader Service
 
+docker pull petitrobert/reader:latest-build || true
+docker pull petitrobert/reader:latest-build || true
+
 docker build ./services/reader \
             --target build-reader \
-            --tag reader:build
+            --tag petitrobert/reader:latest-build
 
 docker build ./services/reader \
             --target production-reader \
-            --tag reader:latest
+            --tag petitrobert/reader:latest-build
 
 ### Nest Service
 
+docker pull petitrobert/api-gateway:latest-build || true
+docker pull petitrobert/api-gateway:latest || true
+
 docker build ./services/api-gateway \
             --target build-api-gateway \
-            --tag api-gateway:build
+            --tag petitrobert/api-gateway:latest-build
 
 docker build ./services/api-gateway \
             --target production-api-gateway \
-            --tag api-gateway:latest
+            --tag petitrobert/api-gateway:latest
