@@ -1,7 +1,7 @@
 ##############################
 #        BUILD IMAGE         #
 ##############################
-FROM base-rust AS build-reader
+FROM petitrobert/base-rust AS build-reader
 
 WORKDIR /services
 
