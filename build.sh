@@ -20,7 +20,7 @@ docker build ./base/node --tag petitrobert/base-node:latest
 ### Reader Service
 
 docker pull petitrobert/reader:latest-build || true
-docker pull petitrobert/reader:latest-build || true
+docker pull petitrobert/reader:latest || true
 
 docker build ./services/reader \
             --target build-reader \
@@ -28,7 +28,7 @@ docker build ./services/reader \
 
 docker build ./services/reader \
             --target production-reader \
-            --tag petitrobert/reader:latest-build
+            --tag petitrobert/reader:latest
 
 ### Nest Service
 
