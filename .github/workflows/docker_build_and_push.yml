@@ -11,47 +11,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Docker login
+        run: docker login -u=${{ secrets.DOCKER_USERNAME }} -p=${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build the whole project.
         run: ./build.sh
 
-      - name: Publish Base Rust
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/base-rust:latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push Base Node
+        run: docker push petitrobert/base-node:latest
 
-      - name: Publish Base Node
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/base-node:latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Publish Reader Build Stage
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/reader:build-latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push Reader Build Stage
+        run: docker push petitrobert/reader:build-latest
 
       - name: Publish Reader Prod
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/reader:latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker push petitrobert/reader:latest
 
       - name: Publish API Build Stage
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/api-gateway:build-latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker push petitrobert/api-gateway:build-latest
 
       - name: Publish API Prod
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: petitrobert/api-gateway:latest
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker push petitrobert/api-gateway:latest
