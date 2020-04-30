@@ -1,4 +1,4 @@
-FROM base-node AS build-api-gateway
+FROM petitrobert/base-node AS build-api-gateway
 
 WORKDIR /services/api-gateway/
 
@@ -12,7 +12,7 @@ COPY . .
 RUN yarn build api-gateway
 RUN yarn build database
 
-FROM base-node as production-api-gateway
+FROM petitrobert/base-node as production-api-gateway
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
