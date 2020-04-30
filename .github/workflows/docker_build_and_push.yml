@@ -1,0 +1,57 @@
+name: docker_build_and_push
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the whole project.
+        run: ./build.sh
+
+      - name: Publish Base Rust
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/base-rust:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish Base Node
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/base-node:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish Reader Build Stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/reader:build-latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish Reader Prod
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/reader:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish API Build Stage
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/api-gateway:build-latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish API Prod
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: petitrobert/api-gateway:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
