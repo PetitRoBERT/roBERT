@@ -21,14 +21,17 @@ jobs:
       - name: Push Base Node
         run: docker push petitrobert/base-node:latest
 
+      - name: Push Base Rust
+        run: docker push petitrobert/base-rust:latest
+
       - name: Push Reader Build Stage
-        run: docker push petitrobert/reader:build-latest
+        run: docker push petitrobert/reader:latest-build
 
       - name: Publish Reader Prod
         run: docker push petitrobert/reader:latest
 
       - name: Publish API Build Stage
-        run: docker push petitrobert/api-gateway:build-latest
+        run: docker push petitrobert/api-gateway:latest-build
 
       - name: Publish API Prod
         run: docker push petitrobert/api-gateway:latest
