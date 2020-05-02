@@ -66,6 +66,8 @@ pub async fn create_server(hostname: &str, port: usize) -> Result<(), Box<dyn st
     let addr = format!("{}:{}", hostname, port).parse()?;
     let reader = RobertReader::default();
 
+    println!("Launching Reader service on {}", addr);
+
     Server::builder()
         .add_service(ReaderServer::new(reader))
         .serve(addr)

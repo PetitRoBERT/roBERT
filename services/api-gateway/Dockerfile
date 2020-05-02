@@ -30,6 +30,4 @@ COPY --from=build-api-gateway /services/api-gateway/dist ./dist
 
 WORKDIR /services/api-gateway/dist/apps/
 
-RUN ls
-
 ENTRYPOINT [ "node" ]

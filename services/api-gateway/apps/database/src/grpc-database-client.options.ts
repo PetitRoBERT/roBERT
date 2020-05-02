@@ -6,5 +6,6 @@ export const grpcDatabaseClientOptions: ClientOptions = {
   options: {
     package: 'database',
     protoPath: join(__dirname, '../../../node_modules/interfaces/database/database.proto'),
+    url: '127.0.0.1:3002'
   },
 };

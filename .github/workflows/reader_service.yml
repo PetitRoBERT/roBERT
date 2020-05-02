@@ -1,8 +1,10 @@
-name: rust_reader
+name: Reader Service Unit Tests
 
 on:
   pull_request:
-    branches: [master]
+    paths:
+      - 'services/reader/**'
+      - 'base/rust/**'
 
 jobs:
   build:

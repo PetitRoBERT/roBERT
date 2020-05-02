@@ -42,3 +42,16 @@ docker build ./services/api-gateway \
 docker build ./services/api-gateway \
             --target production-api-gateway \
             --tag petitrobert/api-gateway:latest
+
+### Front Service
+
+docker pull petitrobert/front:latest-build || true
+docker pull petitrobert/front:latest || true
+
+docker build ./services/front \
+            --target build-front \
+            --tag petitrobert/front:latest-build
+
+docker build ./services/front \
+            --target production-front \
+            --tag petitrobert/front:latest
