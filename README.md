@@ -8,11 +8,11 @@ To launch the whole project in development, run:
 
 ```bash
 docker-compose -f docker-compose.dev.yml build
-
 docker-compose -f docker-compose.dev.yml up
 ```
 
-To use the debugger use this `launch.json` file in VsCode:
+To use the debugger for Nest services use this `launch.json` file in VsCode:
+
 ```json
     {
         "version": "0.2.0",
@@ -45,4 +45,25 @@ To use the debugger use this `launch.json` file in VsCode:
     }
 ```
 
-Now you're ready to go 🚀!
+To debug PetitRoBERT Front install the following plugin:
+
+```text
+    Name: Debugger for Chrome
+    VS Marketplace Link: https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome
+````
+
+And add the following to `launch.json` file:
+
+```json
+    {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Debug: front",
+        "url": "http://localhost:4000",
+        "webRoot": "${workspaceFolder}"
+    }
+```
+
+Full `launch.json` file can be found [here](.vscode/launch.json)
+
+**Now you're ready to go 🚀!**
