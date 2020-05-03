@@ -1,0 +1,80 @@
+name: Front Service Unit Tests
+
+on:
+  pull_request:
+    paths:
+      - 'services/front/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+      SLACK_TITLE: Pull Request Status
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_USERNAME: CI
+      SLACK_ICON: "https://img.icons8.com/ios/50/000000/book-philosophy.png"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Get Yarn Cache Dir
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Restore Cache
+        uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Yarn Packages
+        run: |
+          cd services/front
+          yarn install
+
+      - name: Check Lint
+        run: |
+          cd services/front
+          yarn lint
+
+      - name: Build Project
+        run: |
+          cd services/front
+          yarn build
+
+      - name: Test Project
+        run: |
+          cd services/front
+          yarn test
+
+      - uses: rtCamp/action-slack-notify@v2.0.0
+        name: Slack Success Notification
+        if: success()
+        env:
+          SLACK_COLOR: "#1e824c"
+          SLACK_MESSAGE: Success 🚀! <https://github.com/${{github.repository}}/pull/${{github.event.number}}| Link to PR ${{github.event.number}}>
+
+      - uses: rtCamp/action-slack-notify@v2.0.0
+        name: Slack Failure Notification
+        if: failure()
+        env:
+          SLACK_COLOR: "#f83535"
+          SLACK_MESSAGE: Build Failed 😿 <https://github.com/${{github.repository}}/pull/${{github.event.number}}| Link to PR ${{github.event.number}}>
+
+      - uses: rtCamp/action-slack-notify@v2.0.0
+        name: Slack Stopped Notification
+        if: cancelled()
+        env:
+          SLACK_COLOR: "#adadad"
+          SLACK_MESSAGE: Build Stopped ✋🏻 <https://github.com/${{github.repository}}/pull/${{github.event.number}}| Link to PR ${{github.event.number}}>

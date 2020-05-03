@@ -1,0 +1,16 @@
+name: PetitRoBERT Build
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Docker login
+        run: docker login -u=${{ secrets.DOCKER_USERNAME }} -p=${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build the whole project.
+        run: ./build.sh

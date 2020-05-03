@@ -34,7 +34,7 @@ RUN cargo build --release --target-dir="./target_dir"
 ##############################
 #         PROD IMAGE         #
 ##############################
-FROM alpine:3.7 as production-reader
+FROM debian:jessie-slim as production-reader
 
 WORKDIR /services/reader/
 

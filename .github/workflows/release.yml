@@ -1,4 +1,4 @@
-name: docker_build_and_push
+name: Release PetitRoBERT
 
 on:
   push:
@@ -35,3 +35,9 @@ jobs:
 
       - name: Publish API Prod
         run: docker push petitrobert/api-gateway:latest
+
+      - name: Publish Front Build Stage
+        run: docker push petitrobert/front:latest-build
+
+      - name: Publish Front Prod
+        run: docker push petitrobert/front:latest
