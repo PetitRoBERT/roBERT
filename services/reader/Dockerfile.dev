@@ -1,0 +1,33 @@
+############################
+#        DEV IMAGE         #
+############################
+FROM petitrobert/base-rust AS build-reader
+
+RUN cargo install cargo-watch
+
+WORKDIR /services
+
+# Create empty project
+RUN USER=root cargo new --bin reader
+WORKDIR /services/reader
+
+# Copy Cargo files
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+
+# Cache dependencies
+RUN cargo build
+
+# Remove empty project
+RUN rm src/*.rs
+RUN rm ./target/debug/deps/reader*
+
+# Copy project files
+COPY ./src ./src
+COPY ./protos ./protos
+COPY ./build.rs ./build.rs
+
+# Release build
+RUN cargo build
+
+CMD [ "cargo", "watch" ,"-x", "run" ]
