@@ -32,7 +32,10 @@ services:
       target: build-api-gateway
     ports:
       - "${DATABASE_SERVICE_PORT}:${DATABASE_SERVICE_PORT}"
-    command: yarn start:dev database
+      - "9230:9230"
+    expose:
+      - "9230"
+    command: yarn start --debug 0.0.0.0:9230 --watch database
 
   # REST API Service
   api-gateway-rest:
@@ -48,9 +51,11 @@ services:
       - /services/api-gateway/node_modules # Do not override node_modules
     expose:
       - "${REST_API_SERVICE_PORT}"
+      - "9229"
     ports:
       - "${REST_API_SERVICE_PORT}:${REST_API_SERVICE_PORT}"
-    command: yarn start:dev api-gateway
+      - "9229:9229"
+    command: yarn start --debug 0.0.0.0:9229 --watch api-gateway
     links:
       - api-gateway-database
       - reader
