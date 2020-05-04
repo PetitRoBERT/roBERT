@@ -1,3 +1,3 @@
-export * from './author';
-export * from './author-by-id';
-export * from './author-service';
+export * from './Iauthor';
+export * from './Iauthor-by-id';
+export * from './Iauthor-service';

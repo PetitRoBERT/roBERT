@@ -26,11 +26,13 @@
     "@nestjs/core": "^7.0.5",
     "@nestjs/microservices": "^7.0.5",
     "@nestjs/platform-express": "^7.0.5",
+    "@nestjs/swagger": "^4.5.4",
     "grpc": "^1.24.2",
     "interfaces": "file:../../base/node/interfaces",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
-    "rxjs": "^6.5.4"
+    "rxjs": "^6.5.4",
+    "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.2",

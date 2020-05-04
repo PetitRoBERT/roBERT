@@ -1,4 +1,5 @@
-export interface AuthorById {
+export interface IAuthor {
   // TODO: change when we no longer use int32 as id
   id: number;
+  name: string;
 }
