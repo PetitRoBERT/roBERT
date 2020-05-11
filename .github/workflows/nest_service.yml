@@ -1,0 +1,53 @@
+name: Nest Services
+
+on:
+  pull_request:
+    paths:
+      - 'services/api-gateway/**'
+      - 'base/node/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - name: Get Yarn Cache Dir
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Restore Cache
+        uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Yarn Packages
+        run: |
+          cd services/api-gateway
+          yarn install
+
+      - name: Check Lint
+        run: |
+          cd services/api-gateway
+          yarn lint
+
+      - name: Build Project
+        run: |
+          cd services/api-gateway
+          yarn build
+
+      - name: Test Project
+        run: |
+          cd services/api-gateway
+          yarn test
