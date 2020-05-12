@@ -1,0 +1,83 @@
+version: "3.7"
+
+services:
+  # Reader Service
+  reader:
+    env_file:
+      - .env
+    image: petitrobert/reader
+    build:
+      context: services/reader
+      target: build-reader
+      dockerfile: Dockerfile.dev
+    volumes:
+       - ./base/rust/:/base/rust
+       - /base/rust/libs/reader/target # Do not override lib reader target
+       - ./services/reader/:/services/reader/
+       - /services/reader/target # Do not override target folder
+    ports:
+      - "${READER_SERVICE_PORT}:${READER_SERVICE_PORT}"
+
+  # Database Handler Service
+  api-gateway-database:
+    env_file:
+      - .env
+    image: petitrobert/api-gateway
+    volumes:
+      - ./base/node:/base/node
+      - ./services/api-gateway/:/services/api-gateway/
+      - /services/api-gateway/node_modules # Do not override node_modules
+    build:
+      context: services/api-gateway
+      target: build-api-gateway
+    ports:
+      - "${DATABASE_SERVICE_PORT}:${DATABASE_SERVICE_PORT}"
+      - "9230:9230"
+    expose:
+      - "9230"
+    command: yarn start --debug 0.0.0.0:9230 --watch database
+
+  # REST API Service
+  api-gateway-rest:
+    env_file:
+      - .env
+    image: petitrobert/api-gateway
+    build:
+      context: services/api-gateway
+      target: build-api-gateway
+    volumes:
+      - ./base/node:/base/node
+      - ./services/api-gateway/:/services/api-gateway/
+      - /services/api-gateway/node_modules # Do not override node_modules
+    expose:
+      - "${REST_API_SERVICE_PORT}"
+      - "9229"
+    ports:
+      - "${REST_API_SERVICE_PORT}:${REST_API_SERVICE_PORT}"
+      - "9229:9229"
+    command: yarn start --debug 0.0.0.0:9229 --watch api-gateway
+    links:
+      - api-gateway-database
+      - reader
+
+  # Front Service
+  front:
+    env_file:
+      - .env
+    image: petitrobert/front
+    build:
+      context: services/front
+      target: build-front
+    volumes:
+      - ./base/node:/base/node
+      - ./services/front/:/services/front/
+      - /services/front/node_modules # Do not override node_modules
+    expose:
+      - "${FRONT_SERVICE_PORT}"
+    ports:
+      - "${FRONT_SERVICE_PORT}:${FRONT_SERVICE_PORT}"
+    environment:
+      - PORT=${FRONT_SERVICE_PORT}
+    command: yarn start
+    links:
+      - api-gateway-rest

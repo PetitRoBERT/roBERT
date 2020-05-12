@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug: front",
+            "url": "http://localhost:4000",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Debug: api-gateway-rest",
+            "remoteRoot": "services/api-gateway",
+            "localRoot": "${workspaceFolder}",
+            "protocol": "inspector",
+            "port": 9229,
+            "restart": true,
+            "address": "0.0.0.0",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Debug: api-gateway-database",
+            "remoteRoot": "services/api-gateway",
+            "localRoot": "${workspaceFolder}",
+            "protocol": "inspector",
+            "port": 9230,
+            "restart": true,
+            "address": "0.0.0.0",
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ]
+}
