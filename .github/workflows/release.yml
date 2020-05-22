@@ -31,10 +31,10 @@ jobs:
         run: docker push petitrobert/reader:latest
 
       - name: Publish API Build Stage
-        run: docker push petitrobert/api-gateway:latest-build
+        run: docker push petitrobert/node-services:latest-build
 
       - name: Publish API Prod
-        run: docker push petitrobert/api-gateway:latest
+        run: docker push petitrobert/node-services:latest
 
       - name: Publish Front Build Stage
         run: docker push petitrobert/front:latest-build

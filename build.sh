@@ -15,8 +15,8 @@ docker pull petitrobert/reader:latest || true
 docker pull petitrobert/front:latest-build || true
 docker pull petitrobert/front:latest || true
 
-docker pull petitrobert/api-gateway:latest-build || true
-docker pull petitrobert/api-gateway:latest || true
+docker pull petitrobert/node-services:latest-build || true
+docker pull petitrobert/node-services:latest || true
 
 
 ### Rust
@@ -48,18 +48,18 @@ docker build ./services/reader \
 
 ### Nest Service
 
-docker build ./services/api-gateway \
-            --target build-api-gateway \
+docker build ./services/node-services \
+            --target build-node-services \
             --cache-from petitrobert/base-node:latest \
-            --cache-from petitrobert/api-gateway:latest-build \
-            --tag petitrobert/api-gateway:latest-build
+            --cache-from petitrobert/node-services:latest-build \
+            --tag petitrobert/node-services:latest-build
 
-docker build ./services/api-gateway \
-            --target production-api-gateway \
+docker build ./services/node-services \
+            --target production-node-services \
             --cache-from petitrobert/base-node:latest \
-            --cache-from petitrobert/api-gateway:latest-build \
-            --cache-from petitrobert/api-gateway:latest \
-            --tag petitrobert/api-gateway:latest
+            --cache-from petitrobert/node-services:latest-build \
+            --cache-from petitrobert/node-services:latest \
+            --tag petitrobert/node-services:latest
 
 ### Front Service
 

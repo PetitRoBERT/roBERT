@@ -20,8 +20,8 @@ To use the debugger for Nest services use this `launch.json` file in VsCode:
             {
                 "type": "node",
                 "request": "attach",
-                "name": "Debug: api-gateway-rest",
-                "remoteRoot": "services/api-gateway",
+                "name": "Debug: api-gateway",
+                "remoteRoot": "services/node-services",
                 "localRoot": "${workspaceFolder}",
                 "protocol": "inspector",
                 "port": 9229,
@@ -32,8 +32,8 @@ To use the debugger for Nest services use this `launch.json` file in VsCode:
             {
                 "type": "node",
                 "request": "attach",
-                "name": "Debug: api-gateway-database",
-                "remoteRoot": "services/api-gateway",
+                "name": "Debug: database",
+                "remoteRoot": "services/node-services",
                 "localRoot": "${workspaceFolder}",
                 "protocol": "inspector",
                 "port": 9230,

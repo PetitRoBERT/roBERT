@@ -19,17 +19,17 @@ services:
       - "${READER_SERVICE_PORT}:${READER_SERVICE_PORT}"
 
   # Database Handler Service
-  api-gateway-database:
+  database:
     env_file:
       - .env
-    image: petitrobert/api-gateway
+    image: petitrobert/node-services
     volumes:
       - ./base/node:/base/node
-      - ./services/api-gateway/:/services/api-gateway/
-      - /services/api-gateway/node_modules # Do not override node_modules
+      - ./services/node-services/:/services/node-services/
+      - /services/node-services/node_modules # Do not override node_modules
     build:
-      context: services/api-gateway
-      target: build-api-gateway
+      context: services/node-services
+      target: build-node-services
     ports:
       - "${DATABASE_SERVICE_PORT}:${DATABASE_SERVICE_PORT}"
       - "9230:9230"
@@ -38,17 +38,17 @@ services:
     command: yarn start --debug 0.0.0.0:9230 --watch database
 
   # REST API Service
-  api-gateway-rest:
+  api-gateway:
     env_file:
       - .env
-    image: petitrobert/api-gateway
+    image: petitrobert/node-services
     build:
-      context: services/api-gateway
-      target: build-api-gateway
+      context: services/node-services
+      target: build-node-services
     volumes:
       - ./base/node:/base/node
-      - ./services/api-gateway/:/services/api-gateway/
-      - /services/api-gateway/node_modules # Do not override node_modules
+      - ./services/node-services/:/services/node-services/
+      - /services/node-services/node_modules # Do not override node_modules
     expose:
       - "${REST_API_SERVICE_PORT}"
       - "9229"
@@ -57,7 +57,7 @@ services:
       - "9229:9229"
     command: yarn start --debug 0.0.0.0:9229 --watch api-gateway
     links:
-      - api-gateway-database
+      - database
       - reader
 
   # Front Service
@@ -80,4 +80,4 @@ services:
       - PORT=${FRONT_SERVICE_PORT}
     command: yarn start
     links:
-      - api-gateway-rest
+      - api-gateway
