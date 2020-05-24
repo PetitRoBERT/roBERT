@@ -1,6 +1,6 @@
-FROM petitrobert/base-node AS build-api-gateway
+FROM petitrobert/base-node AS build-node-services
 
-WORKDIR /services/api-gateway/
+WORKDIR /services/node-services/
 
 COPY package.json ./
 COPY yarn.lock ./
@@ -12,12 +12,12 @@ COPY . .
 RUN yarn build api-gateway
 RUN yarn build database
 
-FROM petitrobert/base-node as production-api-gateway
+FROM petitrobert/base-node as production-node-services
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-WORKDIR /services/api-gateway/
+WORKDIR /services/node-services/
 
 COPY package.json ./
 COPY yarn.lock ./
@@ -26,8 +26,8 @@ RUN yarn install --only=production
 
 COPY . .
 
-COPY --from=build-api-gateway /services/api-gateway/dist ./dist
+COPY --from=build-node-services /services/node-services/dist ./dist
 
-WORKDIR /services/api-gateway/dist/apps/
+WORKDIR /services/node-services/dist/apps/
 
 ENTRYPOINT [ "node" ]

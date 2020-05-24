@@ -1,9 +1,9 @@
-name: Nest Services
+name: Node Services
 
 on:
   pull_request:
     paths:
-      - 'services/api-gateway/**'
+      - 'services/node-services/**'
       - 'base/node/**'
 
 jobs:
@@ -34,20 +34,20 @@ jobs:
 
       - name: Install Yarn Packages
         run: |
-          cd services/api-gateway
+          cd services/node-services
           yarn install
 
       - name: Check Lint
         run: |
-          cd services/api-gateway
+          cd services/node-services
           yarn lint
 
       - name: Build Project
         run: |
-          cd services/api-gateway
+          cd services/node-services
           yarn build
 
       - name: Test Project
         run: |
-          cd services/api-gateway
+          cd services/node-services
           yarn test

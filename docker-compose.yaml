@@ -12,30 +12,30 @@ services:
       - "${READER_SERVICE_PORT}:${READER_SERVICE_PORT}"
 
   # Database Handler Service
-  api-gateway-database:
+  database:
     env_file:
       - .env
-    image: petitrobert/api-gateway
+    image: petitrobert/node-services
     build:
-      context: services/api-gateway
+      context: services/node-services
     ports:
       - "${DATABASE_SERVICE_PORT}:${DATABASE_SERVICE_PORT}"
     entrypoint: ["node", "database/main.js"]
 
   # REST API Service
-  api-gateway-rest:
+  api-gateway:
     env_file:
       - .env
-    image: petitrobert/api-gateway
+    image: petitrobert/node-services
     build:
-      context: services/api-gateway
+      context: services/node-services
     expose:
       - "${REST_API_SERVICE_PORT}"
     ports:
       - "${REST_API_SERVICE_PORT}:${REST_API_SERVICE_PORT}"
     entrypoint: ["node", "api-gateway/main.js"]
     links:
-      - api-gateway-database
+      - database
       - reader
 
   # Front Service
@@ -48,4 +48,4 @@ services:
     ports:
       - "${FRONT_SERVICE_PORT}:80"
     links:
-      - api-gateway-rest
+      - api-gateway
