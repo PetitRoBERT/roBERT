@@ -13,7 +13,7 @@ async-stream="0.2"
 book-reader={ path="./../../base/rust/libs/reader" }
 tonic="0.1"
 prost="0.6"
-tokio = { version = "0.2", features = ["macros"] }
+tokio = { version = "1.8", features = ["macros"] }
 futures ="0.3"
 
 [build-dependencies]
